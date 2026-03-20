@@ -3,6 +3,24 @@ module Api
     class RegistrationsController < Devise::RegistrationsController
       respond_to :json
 
+      before_action :configure_permitted_parameters
+
+      def create
+        super
+      end
+
+      protected
+
+      def configure_permitted_parameters
+        devise_parameter_sanitizer.permit(:sign_up, keys: [
+          :first_name,
+          :last_name,
+          :email,
+          :password,
+          :password_confirmation
+        ])
+      end
+
       private
 
       def respond_with(resource, _opts = {})
@@ -16,7 +34,7 @@ module Api
           render json: {
             success: false,
             errors: resource.errors.full_messages
-          }, status: :unprocessable_entity
+          }, status: :unprocessable_content
         end
       end
 
