@@ -12,6 +12,8 @@ Rails.application.routes.draw do
         sessions: 'api/v1/sessions',
         registrations: 'api/v1/registrations'
       }
+
+      resources :events
     end
   end
 end
