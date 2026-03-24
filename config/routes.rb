@@ -14,6 +14,9 @@ Rails.application.routes.draw do
       }
 
       resources :events
+      resources :clients do
+        resources :contacts, only: [:create, :update, :destroy]
+      end
     end
   end
 end
