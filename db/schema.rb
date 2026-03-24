@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_24_035142) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_24_144828) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -60,6 +60,41 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_24_035142) do
     t.index ["user_id"], name: "index_events_on_user_id"
   end
 
+  create_table "projects", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.string "status", default: "active"
+    t.string "color", default: "#6C63FF"
+    t.date "start_date"
+    t.date "end_date"
+    t.bigint "user_id", null: false
+    t.bigint "client_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_projects_on_client_id"
+    t.index ["status"], name: "index_projects_on_status"
+    t.index ["user_id"], name: "index_projects_on_user_id"
+  end
+
+  create_table "tasks", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.string "status", default: "backlog"
+    t.string "priority", default: "medium"
+    t.integer "position", default: 0
+    t.date "due_date"
+    t.bigint "user_id", null: false
+    t.bigint "project_id", null: false
+    t.bigint "assignee_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
+    t.index ["project_id", "position"], name: "index_tasks_on_project_id_and_position"
+    t.index ["project_id", "status"], name: "index_tasks_on_project_id_and_status"
+    t.index ["project_id"], name: "index_tasks_on_project_id"
+    t.index ["user_id"], name: "index_tasks_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name", default: "", null: false
     t.string "last_name", default: "", null: false
@@ -85,4 +120,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_24_035142) do
   add_foreign_key "clients", "users"
   add_foreign_key "contacts", "clients"
   add_foreign_key "events", "users"
+  add_foreign_key "projects", "clients"
+  add_foreign_key "projects", "users"
+  add_foreign_key "tasks", "projects"
+  add_foreign_key "tasks", "users"
+  add_foreign_key "tasks", "users", column: "assignee_id"
 end

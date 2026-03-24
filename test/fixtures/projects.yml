@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  description: MyText
+  status: MyString
+  color: MyString
+  start_date: 2026-03-24
+  end_date: 2026-03-24
+  user: one
+  client: one
+
+two:
+  title: MyString
+  description: MyText
+  status: MyString
+  color: MyString
+  start_date: 2026-03-24
+  end_date: 2026-03-24
+  user: two
+  client: two

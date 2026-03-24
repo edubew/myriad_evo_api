@@ -17,6 +17,13 @@ Rails.application.routes.draw do
       resources :clients do
         resources :contacts, only: [:create, :update, :destroy]
       end
+      resources :projects do
+        resources :tasks, only: [:create, :update, :destroy] do
+          collection do
+            post :reorder
+          end
+        end
+      end
     end
   end
 end
