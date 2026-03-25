@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  description: MyText
+  target_date: 2026-03-25
+  progress: 1
+  status: MyString
+  quarter: MyString
+  year: 1
+  user: one
+
+two:
+  title: MyString
+  description: MyText
+  target_date: 2026-03-25
+  progress: 1
+  status: MyString
+  quarter: MyString
+  year: 1
+  user: two

@@ -13,6 +13,8 @@ Rails.application.routes.draw do
         registrations: 'api/v1/registrations'
       }
 
+      get 'dashboard', to: 'dashboard#index'
+
       resources :events
       resources :clients do
         resources :contacts, only: [:create, :update, :destroy]
@@ -24,6 +26,9 @@ Rails.application.routes.draw do
           end
         end
       end
+      resources :team_members
+      resources :goals
+      resources :documents
     end
   end
 end

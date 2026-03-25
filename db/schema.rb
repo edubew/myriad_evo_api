@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_25_031839) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_25_042203) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -43,6 +43,23 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_031839) do
     t.index ["client_id"], name: "index_contacts_on_client_id"
   end
 
+  create_table "documents", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.string "file_url"
+    t.string "file_name"
+    t.integer "file_size"
+    t.string "file_type"
+    t.string "category", default: "general"
+    t.bigint "user_id", null: false
+    t.bigint "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_documents_on_category"
+    t.index ["project_id"], name: "index_documents_on_project_id"
+    t.index ["user_id"], name: "index_documents_on_user_id"
+  end
+
   create_table "events", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -61,6 +78,21 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_031839) do
     t.index ["source", "source_id"], name: "index_events_on_source_and_source_id"
     t.index ["start_time"], name: "index_events_on_start_time"
     t.index ["user_id"], name: "index_events_on_user_id"
+  end
+
+  create_table "goals", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.date "target_date"
+    t.integer "progress", default: 0
+    t.string "status", default: "active"
+    t.string "quarter"
+    t.integer "year"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_goals_on_user_id"
+    t.index ["year", "quarter"], name: "index_goals_on_year_and_quarter"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -98,6 +130,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_031839) do
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
+  create_table "team_members", force: :cascade do |t|
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "email"
+    t.string "phone"
+    t.string "role"
+    t.string "department"
+    t.text "bio"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_team_members_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name", default: "", null: false
     t.string "last_name", default: "", null: false
@@ -122,10 +168,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_031839) do
 
   add_foreign_key "clients", "users"
   add_foreign_key "contacts", "clients"
+  add_foreign_key "documents", "projects"
+  add_foreign_key "documents", "users"
   add_foreign_key "events", "users"
+  add_foreign_key "goals", "users"
   add_foreign_key "projects", "clients"
   add_foreign_key "projects", "users"
   add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "users"
   add_foreign_key "tasks", "users", column: "assignee_id"
+  add_foreign_key "team_members", "users"
 end
