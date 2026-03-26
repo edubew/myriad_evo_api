@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_26_010423) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_26_020412) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -53,6 +53,24 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_010423) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "date"], name: "index_daily_todos_on_user_id_and_date"
     t.index ["user_id"], name: "index_daily_todos_on_user_id"
+  end
+
+  create_table "deals", force: :cascade do |t|
+    t.string "title", null: false
+    t.decimal "value", precision: 12, scale: 2, default: "0.0"
+    t.integer "probability", default: 0
+    t.date "expected_close"
+    t.string "status", default: "lead"
+    t.text "notes"
+    t.integer "position", default: 0
+    t.bigint "user_id", null: false
+    t.bigint "client_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_deals_on_client_id"
+    t.index ["status", "position"], name: "index_deals_on_status_and_position"
+    t.index ["status"], name: "index_deals_on_status"
+    t.index ["user_id"], name: "index_deals_on_user_id"
   end
 
   create_table "documents", force: :cascade do |t|
@@ -105,6 +123,22 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_010423) do
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_goals_on_user_id"
     t.index ["year", "quarter"], name: "index_goals_on_year_and_quarter"
+  end
+
+  create_table "leads", force: :cascade do |t|
+    t.string "company_name", null: false
+    t.string "contact_name"
+    t.string "email"
+    t.string "phone"
+    t.string "source", default: "other"
+    t.string "status", default: "new"
+    t.text "notes"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source"], name: "index_leads_on_source"
+    t.index ["status"], name: "index_leads_on_status"
+    t.index ["user_id"], name: "index_leads_on_user_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -181,10 +215,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_010423) do
   add_foreign_key "clients", "users"
   add_foreign_key "contacts", "clients"
   add_foreign_key "daily_todos", "users"
+  add_foreign_key "deals", "clients"
+  add_foreign_key "deals", "users"
   add_foreign_key "documents", "projects"
   add_foreign_key "documents", "users"
   add_foreign_key "events", "users"
   add_foreign_key "goals", "users"
+  add_foreign_key "leads", "users"
   add_foreign_key "projects", "clients"
   add_foreign_key "projects", "users"
   add_foreign_key "tasks", "projects"

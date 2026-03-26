@@ -12,7 +12,7 @@ module Api
             kanban_overview: kanban_overview,
             upcoming_events: upcoming_events,
             active_projects: active_projects,
-            # pipeline_summary: pipeline_summary,
+            pipeline_summary: pipeline_summary,
             revenue_chart: revenue_chart
           }
         }
@@ -198,43 +198,43 @@ module Api
           }
       end
 
-      # def pipeline_summary
-      #   max_value = current_user.deals.active.sum(:value).to_f
-      #   max_value = 1 if max_value.zero?
+      def pipeline_summary
+        max_value = current_user.deals.active.sum(:value).to_f
+        max_value = 1 if max_value.zero?
 
-      #   Deal::STAGE_LABELS.map { |status, label|
-      #     stage_deals = current_user.deals.where(status: status)
-      #     value       = stage_deals.sum(:value).to_f
-      #     {
-      #       status:     status,
-      #       label:      label,
-      #       color:      Deal::STAGE_COLORS[status],
-      #       count:      stage_deals.count,
-      #       value:      value,
-      #       percentage: ((value / max_value) * 100).round
-      #     }
-      #   }
-      # end
+        Deal::STAGE_LABELS.map { |status, label|
+          stage_deals = current_user.deals.where(status: status)
+          value       = stage_deals.sum(:value).to_f
+          {
+            status:     status,
+            label:      label,
+            color:      Deal::STAGE_COLORS[status],
+            count:      stage_deals.count,
+            value:      value,
+            percentage: ((value / max_value) * 100).round
+          }
+        }
+      end
 
       def revenue_chart
         6.downto(0).map { |i|
           month       = i.months.ago.beginning_of_month
           month_end   = i.months.ago.end_of_month
-          # won         = current_user.deals
-          #   .where(status: 'closed_won')
-          #   .where(updated_at: month..month_end)
-          #   .sum(:value).to_f
-          # pipeline    = current_user.deals
-          #   .active
-          #   .where(created_at: ..month_end)
-          #   .sum(:value).to_f
-          # {
-          #   month:    month.strftime('%b'),
-          #   year:     month.year,
-          #   won:      won,
-          #   pipeline: pipeline,
-          #   current:  i.zero?
-          # }
+          won         = current_user.deals
+            .where(status: 'closed_won')
+            .where(updated_at: month..month_end)
+            .sum(:value).to_f
+          pipeline    = current_user.deals
+            .active
+            .where(created_at: ..month_end)
+            .sum(:value).to_f
+          {
+            month:    month.strftime('%b'),
+            year:     month.year,
+            won:      won,
+            pipeline: pipeline,
+            current:  i.zero?
+          }
         }.reverse
       end
 

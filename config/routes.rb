@@ -30,6 +30,12 @@ Rails.application.routes.draw do
       resources :team_members
       resources :goals
       resources :documents
+      resources :deals do
+        collection do
+          post :reorder
+        end
+      end
+      resources :leads
     end
   end
 end

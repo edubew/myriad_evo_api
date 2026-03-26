@@ -11,6 +11,7 @@ class User < ApplicationRecord
         has_many :events, dependent: :destroy
         has_many :projects
         has_many :daily_todos, dependent: :destroy
+        has_many :deals, dependent: :destroy
 
         validates :first_name, presence: true
         validates :last_name, presence: true
