@@ -10,6 +10,7 @@ class User < ApplicationRecord
         has_many :clients
         has_many :events, dependent: :destroy
         has_many :projects
+        has_many :daily_todos, dependent: :destroy
 
         validates :first_name, presence: true
         validates :last_name, presence: true

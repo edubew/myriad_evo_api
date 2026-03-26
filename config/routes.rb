@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       }
 
       get 'dashboard', to: 'dashboard#index'
+      resources :daily_todos, only: [:index, :create, :update, :destroy]
 
       resources :events
       resources :clients do

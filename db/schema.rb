@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_25_042203) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_26_010423) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -41,6 +41,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_042203) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["client_id"], name: "index_contacts_on_client_id"
+  end
+
+  create_table "daily_todos", force: :cascade do |t|
+    t.string "text", null: false
+    t.boolean "done", default: false
+    t.date "date", null: false
+    t.integer "position", default: 0
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "date"], name: "index_daily_todos_on_user_id_and_date"
+    t.index ["user_id"], name: "index_daily_todos_on_user_id"
   end
 
   create_table "documents", force: :cascade do |t|
@@ -168,6 +180,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_25_042203) do
 
   add_foreign_key "clients", "users"
   add_foreign_key "contacts", "clients"
+  add_foreign_key "daily_todos", "users"
   add_foreign_key "documents", "projects"
   add_foreign_key "documents", "users"
   add_foreign_key "events", "users"
