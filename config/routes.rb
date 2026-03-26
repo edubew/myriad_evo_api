@@ -36,6 +36,9 @@ Rails.application.routes.draw do
         end
       end
       resources :leads
+      resources :allocation_setting, only: [:show, :update]
+      resources :revenue_entries
+      resources :invoices
     end
   end
 end

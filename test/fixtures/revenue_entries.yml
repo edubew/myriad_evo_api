@@ -1,0 +1,35 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  amount: 9.99
+  source: MyString
+  source_id: 1
+  status: MyString
+  date: 2026-03-26
+  notes: MyText
+  salary_pct: 9.99
+  ops_pct: 9.99
+  profit_pct: 9.99
+  salary_amount: 9.99
+  ops_amount: 9.99
+  profit_amount: 9.99
+  user: one
+  deal: one
+
+two:
+  title: MyString
+  amount: 9.99
+  source: MyString
+  source_id: 1
+  status: MyString
+  date: 2026-03-26
+  notes: MyText
+  salary_pct: 9.99
+  ops_pct: 9.99
+  profit_pct: 9.99
+  salary_amount: 9.99
+  ops_amount: 9.99
+  profit_amount: 9.99
+  user: two
+  deal: two

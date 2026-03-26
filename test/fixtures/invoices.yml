@@ -1,0 +1,31 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  invoice_number: MyString
+  title: MyString
+  client: one
+  user: one
+  amount: 9.99
+  tax_rate: 9.99
+  tax_amount: 9.99
+  total_amount: 9.99
+  status: MyString
+  issued_date: 2026-03-26
+  due_date: 2026-03-26
+  paid_date: 2026-03-26
+  notes: MyText
+
+two:
+  invoice_number: MyString
+  title: MyString
+  client: two
+  user: two
+  amount: 9.99
+  tax_rate: 9.99
+  tax_amount: 9.99
+  total_amount: 9.99
+  status: MyString
+  issued_date: 2026-03-26
+  due_date: 2026-03-26
+  paid_date: 2026-03-26
+  notes: MyText
