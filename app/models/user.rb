@@ -12,6 +12,9 @@ class User < ApplicationRecord
         has_many :projects
         has_many :daily_todos, dependent: :destroy
         has_many :deals, dependent: :destroy
+        has_one  :allocation_setting
+        has_many :revenue_entries
+        has_many :invoices
 
         validates :first_name, presence: true
         validates :last_name, presence: true
