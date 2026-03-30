@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_26_020412) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_27_011643) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "allocation_settings", force: :cascade do |t|
+    t.decimal "salary_pct", precision: 5, scale: 2, default: "40.0"
+    t.decimal "ops_pct", precision: 5, scale: 2, default: "25.0"
+    t.decimal "profit_pct", precision: 5, scale: 2, default: "35.0"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_allocation_settings_on_user_id"
+  end
 
   create_table "clients", force: :cascade do |t|
     t.string "company_name", null: false
@@ -125,6 +135,28 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_020412) do
     t.index ["year", "quarter"], name: "index_goals_on_year_and_quarter"
   end
 
+  create_table "invoices", force: :cascade do |t|
+    t.string "invoice_number", null: false
+    t.string "title", null: false
+    t.decimal "amount", precision: 12, scale: 2
+    t.decimal "tax_rate", precision: 5, scale: 2, default: "0.0"
+    t.decimal "tax_amount", precision: 12, scale: 2, default: "0.0"
+    t.decimal "total_amount", precision: 12, scale: 2
+    t.string "status", default: "draft"
+    t.date "issued_date"
+    t.date "due_date"
+    t.date "paid_date"
+    t.text "notes"
+    t.bigint "client_id"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_invoices_on_client_id"
+    t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
+    t.index ["status"], name: "index_invoices_on_status"
+    t.index ["user_id"], name: "index_invoices_on_user_id"
+  end
+
   create_table "leads", force: :cascade do |t|
     t.string "company_name", null: false
     t.string "contact_name"
@@ -157,6 +189,30 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_020412) do
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
 
+  create_table "revenue_entries", force: :cascade do |t|
+    t.string "title", null: false
+    t.decimal "amount", precision: 12, scale: 2
+    t.string "source", default: "manual"
+    t.integer "source_id"
+    t.string "status", default: "pending"
+    t.date "date"
+    t.text "notes"
+    t.decimal "salary_pct", precision: 5, scale: 2
+    t.decimal "ops_pct", precision: 5, scale: 2
+    t.decimal "profit_pct", precision: 5, scale: 2
+    t.decimal "salary_amount", precision: 12, scale: 2
+    t.decimal "ops_amount", precision: 12, scale: 2
+    t.decimal "profit_amount", precision: 12, scale: 2
+    t.bigint "user_id", null: false
+    t.bigint "deal_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["deal_id"], name: "index_revenue_entries_on_deal_id"
+    t.index ["status"], name: "index_revenue_entries_on_status"
+    t.index ["user_id", "date"], name: "index_revenue_entries_on_user_id_and_date"
+    t.index ["user_id"], name: "index_revenue_entries_on_user_id"
+  end
+
   create_table "tasks", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -187,6 +243,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_020412) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "avatar_url"
     t.index ["user_id"], name: "index_team_members_on_user_id"
   end
 
@@ -207,11 +264,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_020412) do
     t.string "jti", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "avatar_url"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "allocation_settings", "users"
   add_foreign_key "clients", "users"
   add_foreign_key "contacts", "clients"
   add_foreign_key "daily_todos", "users"
@@ -221,9 +280,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_26_020412) do
   add_foreign_key "documents", "users"
   add_foreign_key "events", "users"
   add_foreign_key "goals", "users"
+  add_foreign_key "invoices", "clients"
+  add_foreign_key "invoices", "users"
   add_foreign_key "leads", "users"
   add_foreign_key "projects", "clients"
   add_foreign_key "projects", "users"
+  add_foreign_key "revenue_entries", "deals"
+  add_foreign_key "revenue_entries", "users"
   add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "users"
   add_foreign_key "tasks", "users", column: "assignee_id"

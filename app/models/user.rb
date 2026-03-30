@@ -15,6 +15,10 @@ class User < ApplicationRecord
         has_one  :allocation_setting
         has_many :revenue_entries
         has_many :invoices
+        has_many :team_members
+        has_many :goals
+        has_many :documents
+        has_many :leads
 
         validates :first_name, presence: true
         validates :last_name, presence: true
@@ -26,6 +30,14 @@ class User < ApplicationRecord
 
         def full_name
           "#{first_name} #{last_name}"
+        end
+
+        require 'digest'
+
+        def avatar
+          return avatar_url if avatar_url.present?
+          hash = Digest::MD5.hexdigest(email.downcase.strip)
+          "https://www.gravatar.com/avatar/#{hash}?s=200&d=identicon"
         end
 
 end

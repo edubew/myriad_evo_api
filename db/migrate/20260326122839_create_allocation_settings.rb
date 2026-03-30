@@ -9,6 +9,6 @@ class CreateAllocationSettings < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :allocation_settings, :user_id, unique: true
+    add_index :allocation_settings, :user_id, unique: true unless index_exists?(:allocation_settings, :user_id)
   end
 end

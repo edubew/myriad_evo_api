@@ -3,6 +3,16 @@ module Api
     class TasksController < BaseController
       before_action :set_project
 
+      def index
+        @tasks = @project.tasks
+        .includes(:assignee)
+        .order(:position)
+        render json: {
+          success: true,
+          data: @tasks.map { |t| task_payload(t) }
+        }
+      end
+
       def create
         @task = @project.tasks.build(task_params)
         @task.user = current_user
@@ -43,7 +53,6 @@ module Api
         render json: { success: true, message: 'Task deleted' }
       end
 
-      # Handle drag and drop reordering
       def reorder
         tasks_order = params[:tasks]
         tasks_order.each_with_index do |task_data, index|
@@ -77,18 +86,20 @@ module Api
 
       def task_payload(task)
         {
-          id:             task.id,
-          title:          task.title,
-          description:    task.description,
-          status:         task.status,
-          priority:       task.priority,
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
           priority_color: task.priority_color,
-          position:       task.position,
-          due_date:       task.due_date,
-          project_id:     task.project_id,
+          position: task.position,
+          due_date: task.due_date,
+          project_id: task.project_id,
           assignee: task.assignee ? {
-            id:        task.assignee.id,
-            full_name: task.assignee.full_name
+            id: task.assignee.id,
+            full_name: task.assignee.full_name,
+            avatar: task.assignee.avatar,
+            initials: "#{task.assignee.first_name[0]}#{task.assignee.last_name[0]}"
           } : nil
         }
       end

@@ -56,7 +56,7 @@ module Api
       def member_params
         params.require(:team_member).permit(
           :first_name, :last_name, :email,
-          :phone, :role, :department, :bio
+          :phone, :role, :department, :bio, :avatar_url
         )
       end
 
@@ -71,7 +71,8 @@ module Api
           phone: member.phone,
           role: member.role,
           department: member.department,
-          bio: member.bio
+          bio: member.bio,
+          avatar: member.avatar
         }
       end
     end

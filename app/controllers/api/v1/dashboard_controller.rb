@@ -24,9 +24,9 @@ module Api
       def metrics
         today = Date.today
         {
-          overdue_projects:      overdue_projects_scope.count,
-          active_projects:       current_user.projects.active.count,
-          upcoming_deadlines:    current_user.projects
+          overdue_projects: overdue_projects_scope.count,
+          active_projects: current_user.projects.active.count,
+          upcoming_deadlines: current_user.projects
             .where(end_date: today..(today + 14.days))
             .where(status: 'active')
             .count,
@@ -69,15 +69,15 @@ module Api
         # Tasks due today from all projects
         overdue_tasks_scope.limit(3).each do |task|
           items << {
-            id:         "task_#{task.id}",
-            text:       task.title,
-            source:     'project',
+            id: "task_#{task.id}",
+            text: task.title,
+            source:  'project',
             source_id:  task.project_id,
-            meta:       "#{task.project&.title} · overdue",
-            done:       false,
-            type:       'task',
-            priority:   task.priority,
-            overdue:    true
+            meta: "#{task.project&.title} · overdue",
+            done: false,
+            type: 'task',
+            priority: task.priority,
+            overdue: true
           }
         end
 
@@ -88,15 +88,15 @@ module Api
           .limit(4)
           .each do |t|
             items << {
-              id:        "task_#{t.id}",
-              text:      t.title,
-              source:    'project',
+              id: "task_#{t.id}",
+              text: t.title,
+              source: 'project',
               source_id: t.project_id,
-              meta:      "#{t.project_title} · due today",
-              done:      false,
-              type:      'task',
-              priority:  t.priority,
-              overdue:   false
+              meta: "#{t.project_title} · due today",
+              done: false,
+              type: 'task',
+              priority: t.priority,
+              overdue: false
             }
           end
 
@@ -107,15 +107,15 @@ module Api
           .limit(2)
           .each do |e|
             items << {
-              id:        "event_#{e.id}",
-              text:      e.title,
-              source:    'calendar',
+              id:  "event_#{e.id}",
+              text: e.title,
+              source: 'calendar',
               source_id: e.id,
-              meta:      "Calendar · #{e.start_time.strftime('%I:%M %p')}",
-              done:      false,
-              type:      'event',
-              priority:  nil,
-              overdue:   false
+              meta: "Calendar · #{e.start_time.strftime('%I:%M %p')}",
+              done: false,
+              type: 'event',
+              priority: nil,
+              overdue: false
             }
           end
 
@@ -139,14 +139,14 @@ module Api
             overdue = t.due_date.present? && t.due_date < Date.today &&
                       status != 'completed'
             {
-              id:           t.id,
-              title:        t.title,
-              priority:     t.priority,
+              id: t.id,
+              title: t.title,
+              priority: t.priority,
               priority_color: t.priority_color,
-              due_date:     t.due_date,
-              project_id:   t.project_id,
+              due_date: t.due_date,
+              project_id: t.project_id,
               project_title: t.project&.title,
-              overdue:      overdue
+              overdue: overdue
             }
           }
         end
@@ -168,14 +168,14 @@ module Api
           .limit(5)
           .map { |e|
             {
-              id:         e.id,
-              title:      e.title,
-              start:      e.start_time,
-              all_day:    e.all_day,
+              id: e.id,
+              title: e.title,
+              start: e.start_time,
+              all_day: e.all_day,
               event_type: e.event_type,
-              color:      e.color,
-              source:     e.source,
-              source_id:  e.source_id
+              color: e.color,
+              source: e.source,
+              source_id: e.source_id
             }
           }
       end
@@ -188,12 +188,12 @@ module Api
           .map { |p|
             overdue = p.end_date.present? && p.end_date < Date.today
             {
-              id:                    p.id,
-              title:                 p.title,
-              color:                 p.color,
-              end_date:              p.end_date,
+              id: p.id,
+              title: p.title,
+              color: p.color,
+              end_date: p.end_date,
               completion_percentage: p.completion_percentage,
-              overdue:               overdue
+              overdue: overdue
             }
           }
       end
@@ -206,11 +206,11 @@ module Api
           stage_deals = current_user.deals.where(status: status)
           value       = stage_deals.sum(:value).to_f
           {
-            status:     status,
-            label:      label,
-            color:      Deal::STAGE_COLORS[status],
-            count:      stage_deals.count,
-            value:      value,
+            status: status,
+            label: label,
+            color: Deal::STAGE_COLORS[status],
+            count: stage_deals.count,
+            value: value,
             percentage: ((value / max_value) * 100).round
           }
         }
@@ -229,11 +229,11 @@ module Api
             .where(created_at: ..month_end)
             .sum(:value).to_f
           {
-            month:    month.strftime('%b'),
-            year:     month.year,
-            won:      won,
+            month: month.strftime('%b'),
+            year: month.year,
+            won: won,
             pipeline: pipeline,
-            current:  i.zero?
+            current: i.zero?
           }
         }.reverse
       end

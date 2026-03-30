@@ -16,4 +16,13 @@ class TeamMember < ApplicationRecord
   def initials
     "#{first_name[0]}#{last_name[0]}".upcase
   end
+
+  require 'digest'
+
+  def avatar
+    return avatar_url if avatar_url.present?
+    return nil unless email.present?
+    hash = Digest::MD5.hexdigest(email.downcase.strip)
+    "https://www.gravatar.com/avatar/#{hash}?s=200&d=identicon"
+  end
 end
