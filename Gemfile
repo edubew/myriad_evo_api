@@ -56,3 +56,5 @@ gem 'rack-cors'
 gem 'blueprinter'
 
 gem 'dotenv-rails', groups: [:development, :test]
+
+gem 'image_processing'
