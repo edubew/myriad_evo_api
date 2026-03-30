@@ -1,6 +1,7 @@
 module Api
   module V1
     class DocumentsController < BaseController
+      include Rails.application.routes.url_helpers
       before_action :set_document, only: [:show, :update, :destroy]
 
       def index
@@ -67,8 +68,7 @@ module Api
 
       def document_params
         params.require(:document).permit(
-          :title, :description, :file_url, :file_name,
-          :file_size, :file_type, :category, :project_id
+          :title, :description,:category, :project_id, :file
         )
       end
 
@@ -77,14 +77,11 @@ module Api
           id: document.id,
           title: document.title,
           description: document.description,
-          file_url: document.file_url,
-          file_name: document.file_name,
-          file_size: document.file_size,
-          file_type: document.file_type,
-          formatted_size: document.formatted_size,
-          icon: document.icon,
           category: document.category,
           project_id: document.project_id,
+          file_url: document.file.attached? ? url_for(document.file) : nil,
+          file_name: document.file.filename.to_s,
+          file_type: document.file.content_type,
           created_at: document.created_at
         }
       end

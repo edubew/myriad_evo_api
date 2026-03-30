@@ -30,6 +30,10 @@ module Api
         end
       end
 
+      def show
+        render json: { success: true, data: lead_payload(@lead) }
+      end
+
       def update
         if @lead.update(lead_params)
           render json: { success: true, data: lead_payload(@lead) }
