@@ -61,7 +61,7 @@ module Api
         @invoice.destroy
         render json: { success: true, message: 'Invoice deleted' }
       end
-
+      
       private
 
       def set_invoice
@@ -76,7 +76,9 @@ module Api
           :title, :amount, :tax_rate, :status,
           :issued_date, :due_date, :paid_date,
           :notes, :client_id
-        )
+        ).tap do |p|
+          p[:client_id] = nil if p[:client_id].blank?
+        end
       end
 
       def invoice_payload(invoice)

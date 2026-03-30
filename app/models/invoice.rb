@@ -27,6 +27,18 @@ class Invoice < ApplicationRecord
     status == 'sent' && due_date.present? && due_date < Date.today
   end
 
+      def days_until_due
+        return nil unless due_date
+        (due_date - Date.today).to_i
+      end
+
+      def overdue?
+        return false unless due_date
+        return false if status == 'paid'
+
+        due_date < Date.today
+      end
+
   private
 
   def generate_invoice_number
