@@ -49,9 +49,6 @@ end
 gem 'devise'
 gem 'devise-jwt'
 
-# CORS (allows React frontend to talk to Rails)
-gem 'rack-cors'
-
 # Clean JSON responses
 gem 'blueprinter'
 
