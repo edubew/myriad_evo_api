@@ -80,6 +80,7 @@ test:
 #
 production:
   <<: *default
-  database: myriad_evo_api_production
-  username: <%= ENV["DB_USERNAME"] %>
-  password: <%= ENV["DB_PASSWORD"] %>
+  url: <%= ENV["DATABASE_URL"] %>
+  # database: myriad_evo_api_production
+  # username: <%= ENV["DB_USERNAME"] %>
+  # password: <%= ENV["DB_PASSWORD"] %>

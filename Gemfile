@@ -55,6 +55,6 @@ gem 'rack-cors'
 # Clean JSON responses
 gem 'blueprinter'
 
-gem 'dotenv-rails', groups: [:development, :test]
+gem 'dotenv-rails'
 
 gem 'image_processing'
