@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
+      root to: proc { [200, {}, ["Welcome to Myriad Evo API"]] }
       devise_for :users,
       path: '',
       path_names: {
