@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_30_104744) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
+  create_schema "auth"
+  create_schema "extensions"
+  create_schema "graphql"
+  create_schema "graphql_public"
+  create_schema "pgbouncer"
+  create_schema "realtime"
+  create_schema "storage"
+  create_schema "vault"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_graphql"
+  enable_extension "pg_stat_statements"
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
+  enable_extension "supabase_vault"
+  enable_extension "uuid-ossp"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -63,6 +77,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_30_104744) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "internal"
     t.index ["company_name"], name: "index_clients_on_company_name"
     t.index ["status"], name: "index_clients_on_status"
     t.index ["user_id"], name: "index_clients_on_user_id"
@@ -183,6 +198,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_30_104744) do
     t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
     t.index ["status"], name: "index_invoices_on_status"
     t.index ["user_id"], name: "index_invoices_on_user_id"
+  end
+
+  create_table "jwt_denylists", force: :cascade do |t|
+    t.string "jti"
+    t.datetime "exp"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
   create_table "leads", force: :cascade do |t|

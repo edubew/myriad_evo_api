@@ -1,6 +1,8 @@
 class Project < ApplicationRecord
+  before_validation :assign_default_client, on: :create
+
   belongs_to :user
-  belongs_to :client, optional: true
+  belongs_to :client
   has_many :tasks, dependent: :destroy
   has_one  :deadline_event,
     -> { where(source: 'project') },
@@ -15,6 +17,7 @@ class Project < ApplicationRecord
   ].freeze
 
   validates :title, presence: true
+  validates :client_id, presence: true
   validates :status, inclusion: { in: STATUSES }
 
   scope :active,    -> { where(status: 'active') }
@@ -61,5 +64,23 @@ class Project < ApplicationRecord
 
   def cleanup_deadline_event
     deadline_event&.destroy
+  end
+
+  def assign_default_client
+    self.client_id ||= default_client_id
+  end
+
+  User.find_each do |user|
+    Client.find_or_create_by!(
+      company_name: "Myriad Evo (Internal)",
+      user: user
+    ) do |client|
+      client.status = "active"
+      client.internal = true
+    end
+  end
+
+  def default_client_id
+    Client.find_by(internal: true, user: user)&.id
   end
 end
