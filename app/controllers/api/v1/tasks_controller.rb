@@ -14,10 +14,15 @@ module Api
       end
 
       def create
-        @task = @project.tasks.build(task_params)
+        @task = @project.tasks.build(task_params.except(:assignee_id))
         @task.user = current_user
         @task.position = @project.tasks
           .where(status: @task.status).count
+
+        if task_params[:assignee_id].present?
+          assignee = User.find_by(id: task_params[:assignee_id])
+          @task.assignee = assignee if assignee
+        end
 
         if @task.save
           render json: {

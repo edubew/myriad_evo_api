@@ -14,6 +14,7 @@ class Task < ApplicationRecord
   }.freeze
 
   validates :title,    presence: true
+  validate :assignee_must_exist
   validates :status,   inclusion: { in: STATUSES }
   validates :priority, inclusion: { in: PRIORITIES }
 
@@ -21,5 +22,10 @@ class Task < ApplicationRecord
 
   def priority_color
     PRIORITY_COLORS[priority]
+  end
+
+  def assignee_must_exist
+    return if assignee_id.blank?
+    errors.add(:assignee, "must exist") unless User.exists?(assignee_id)
   end
 end
