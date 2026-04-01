@@ -11,11 +11,8 @@ class Api::V1::SessionsController < Devise::SessionsController
     # user = User.find_by(email: login_params[:email])
 
       if user&.valid_password?(password)
-      # if user&.valid_password?(login_params[:password])
-        # sign_in(user)
         token, payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
-        # token = request.env['warden-jwt_auth.token']
-
+        
         render json: {
         success: true,
         message: "Logged in successfully",
