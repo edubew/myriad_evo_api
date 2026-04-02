@@ -4,7 +4,7 @@ module Api
       before_action :set_invoice, only: [:show, :update, :destroy]
 
       def index
-        @invoices = current_user.invoices
+        @invoices = current_company.invoices
           .includes(:client)
           .order(created_at: :desc)
 
@@ -26,7 +26,7 @@ module Api
       end
 
       def create
-        @invoice = current_user.invoices.build(invoice_params)
+        @invoice = current_company.invoices.build(invoice_params.merge(user: current_user))
         if @invoice.save
           render json: {
             success: true,
@@ -65,7 +65,7 @@ module Api
       private
 
       def set_invoice
-        @invoice = current_user.invoices.find(params[:id])
+        @invoice = current_company.invoices.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { success: false, error: 'Invoice not found' },
                status: :not_found

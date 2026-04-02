@@ -4,7 +4,7 @@ module Api
       before_action :set_entry, only: [:update, :destroy]
 
       def index
-        @entries = current_user.revenue_entries
+        @entries = current_company.revenue_entries
           .order(date: :desc)
 
         if params[:month].present? && params[:year].present?
@@ -23,8 +23,8 @@ module Api
 
       def create
         # Load default allocation if not provided
-        defaults = current_user.allocation_setting
-        @entry   = current_user.revenue_entries.build(entry_params)
+        defaults = current_company.allocation_setting
+        @entry   = current_company.revenue_entries.build(entry_params.merge(user: current_user))
 
         unless params.dig(:revenue_entry, :salary_pct).present?
           @entry.salary_pct = defaults&.salary_pct || 40.0
@@ -64,7 +64,7 @@ module Api
       private
 
       def set_entry
-        @entry = current_user.revenue_entries.find(params[:id])
+        @entry = current_company.revenue_entries.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { success: false, error: 'Not found' },
                status: :not_found

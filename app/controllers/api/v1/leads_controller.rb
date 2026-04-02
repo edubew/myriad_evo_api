@@ -4,7 +4,7 @@ module Api
       before_action :set_lead, only: [:show, :update, :destroy]
 
       def index
-        @leads = current_user.leads
+        @leads = current_company.leads
         @leads = @leads.search(params[:q])          if params[:q].present?
         @leads = @leads.where(status: params[:status]) if params[:status].present?
         @leads = @leads.order(created_at: :desc)
@@ -16,7 +16,7 @@ module Api
       end
 
       def create
-        @lead = current_user.leads.build(lead_params)
+        @lead = current_company.leads.build(lead_params.merge(user: current_user))
         if @lead.save
           render json: {
             success: true,
@@ -53,7 +53,7 @@ module Api
       private
 
       def set_lead
-        @lead = current_user.leads.find(params[:id])
+        @lead = current_company.leads.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

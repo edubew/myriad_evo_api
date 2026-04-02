@@ -1,5 +1,6 @@
 class Lead < ApplicationRecord
   belongs_to :user
+  belongs_to :company
 
   STATUSES = %w[new contacted qualified disqualified].freeze
   SOURCES  = %w[

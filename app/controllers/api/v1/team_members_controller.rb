@@ -4,7 +4,7 @@ module Api
       before_action :set_member, only: [:update, :destroy]
 
       def index
-        @members = current_user.team_members.order(:first_name)
+        @members = current_company.team_members.order(:first_name)
         render json: {
           success: true,
           data: @members.map { |m| member_payload(m) }
@@ -12,7 +12,7 @@ module Api
       end
 
       def create
-        @member = current_user.team_members.build(member_params)
+        @member = current_company.team_members.build(member_params)
         if @member.save
           render json: {
             success: true,
@@ -45,7 +45,7 @@ module Api
       private
 
       def set_member
-        @member = current_user.team_members.find(params[:id])
+        @member = current_company.team_members.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

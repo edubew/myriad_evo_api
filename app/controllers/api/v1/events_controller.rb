@@ -4,7 +4,7 @@ module Api
       before_action :set_event, only: [:show, :update, :destroy]
 
       def index
-        @events = current_user.events
+        @events = current_company.events
 
         if params[:start].present? && params[:end].present?
           @events = @events.where(
@@ -23,8 +23,8 @@ module Api
       end
 
       def create
-        @event = current_user.events.build(
-          event_params.merge(source: 'manual')
+        @event = current_company.events.build(
+          event_params.merge(source: 'manual', user: current_user)
         )
         if @event.save
           render json: {

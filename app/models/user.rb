@@ -7,6 +7,7 @@ class User < ApplicationRecord
 
         #  Roles
         ROLES = %w[admin member].freeze
+        belongs_to :company
         has_many :clients
         has_many :events, dependent: :destroy
         has_many :projects

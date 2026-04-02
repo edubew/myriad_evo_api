@@ -4,7 +4,7 @@ module Api
       before_action :set_client, only: [:show, :update, :destroy]
 
       def index
-        @clients = current_user.clients
+        @clients = current_company.clients
 
         @clients = @clients.search(params[:q])    if params[:q].present?
         @clients = @clients.where(status: params[:status]) if params[:status].present?
@@ -24,7 +24,7 @@ module Api
       end
 
       def create
-        @client = current_user.clients.build(client_params)
+        @client = current_company.clients.build(client_params.merge(user: current_user))
         if @client.save
           render json: {
             success: true,
@@ -60,7 +60,7 @@ module Api
       private
 
       def set_client
-        @client = current_user.clients.find(params[:id])
+        @client = current_company.clients.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

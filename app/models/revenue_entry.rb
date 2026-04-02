@@ -1,5 +1,6 @@
 class RevenueEntry < ApplicationRecord
   belongs_to :user
+  belongs_to :company
   belongs_to :deal, optional: true
 
   SOURCES  = %w[manual deal].freeze

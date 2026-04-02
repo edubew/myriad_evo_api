@@ -3,6 +3,7 @@ class Project < ApplicationRecord
 
   belongs_to :user
   belongs_to :client
+  belongs_to :company
   has_many :tasks, dependent: :destroy
   has_one  :deadline_event,
     -> { where(source: 'project') },
@@ -52,7 +53,8 @@ class Project < ApplicationRecord
       event_type: 'deadline',
       source: 'project',
       source_id: id,
-      user: user
+      user: user,
+      company: company
     }
 
     if deadline_event.present?

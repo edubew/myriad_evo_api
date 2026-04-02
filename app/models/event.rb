@@ -1,5 +1,6 @@
 class Event < ApplicationRecord
   belongs_to :user
+  belongs_to :company
 
   EVENT_TYPES = %w[meeting deadline follow_up task].freeze
   SOURCES = %w[manual project task].freeze

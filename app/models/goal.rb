@@ -1,5 +1,6 @@
 class Goal < ApplicationRecord
   belongs_to :user
+  belongs_to :company
 
   STATUSES  = %w[active completed cancelled].freeze
   QUARTERS  = %w[Q1 Q2 Q3 Q4].freeze

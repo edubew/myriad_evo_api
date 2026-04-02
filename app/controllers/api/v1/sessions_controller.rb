@@ -2,32 +2,17 @@ class Api::V1::SessionsController < Devise::SessionsController
   respond_to :json
 
   def create
-    # login_params = params.require(:user).permit(:email, :password)
-    login_params = params[:user] || params.dig(:session, :user)
-    email = login_params[:email]
-    password = login_params[:password]
-    user = User.find_by(email: email)
+    user = User.find_by(email: params.dig(:user, :email))
 
-    # user = User.find_by(email: login_params[:email])
-
-      if user&.valid_password?(password)
-        token, payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
+      if user&.valid_password?(params.dig(:user, :password))
+        token, _payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
         
         render json: {
         success: true,
         message: "Logged in successfully",
         token: token,
-        user: {
-          id: user.id,
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          role: user.role,
-          full_name: user.full_name,
-          avatar: user.avatar
-        }
-      }, status: :ok
-      
+        user: user_payload(user)
+      }
       else
         render json: {
           success: false,
@@ -39,4 +24,18 @@ class Api::V1::SessionsController < Devise::SessionsController
   def destroy
     render json: { success: true, message: "Logged out successfully" }, status: :ok
   end
+
+  def user_payload(user)
+  {
+    id: user.id,
+    email: user.email,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    role:  user.role,
+    full_name: user.full_name,
+    avatar: user.avatar,
+    company_id: user.company_id,
+    company_name: user.company&.name
+  }
+end
 end

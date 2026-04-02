@@ -1,5 +1,6 @@
 class AllocationSetting < ApplicationRecord
   belongs_to :user
+  belongs_to :company
 
   validates :salary_pct, :ops_pct, :profit_pct,
     numericality: {

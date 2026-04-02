@@ -4,7 +4,7 @@ module Api
       before_action :set_client
 
       def create
-        @contact = @client.contacts.build(contact_params)
+        @contact = @client.contacts.build(contact_params.merge(company: current_company))
         if @contact.save
           render json: {
             success: true,
@@ -42,7 +42,7 @@ module Api
       private
 
       def set_client
-        @client = current_user.clients.find(params[:client_id])
+        @client = current_company.clients.find(params[:client_id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

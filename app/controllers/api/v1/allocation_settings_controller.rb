@@ -3,8 +3,8 @@ module Api
     class AllocationSettingsController < BaseController
 
       def show
-        setting = current_user.allocation_setting ||
-          current_user.build_allocation_setting
+        setting = current_company.allocation_setting ||
+          current_company.build_allocation_setting
         render json: {
           success: true,
           data: setting_payload(setting)

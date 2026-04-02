@@ -1,6 +1,7 @@
 class Invoice < ApplicationRecord
   belongs_to :client, optional: true
   belongs_to :user
+  belongs_to :company
 
   STATUSES = %w[draft sent paid overdue cancelled].freeze
 

@@ -1,5 +1,6 @@
 class TeamMember < ApplicationRecord
   belongs_to :user
+  belongs_to :company
 
   DEPARTMENTS = %w[
     Engineering Design Product Sales

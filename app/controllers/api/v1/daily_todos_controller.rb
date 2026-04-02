@@ -16,7 +16,8 @@ module Api
         todo = current_user.daily_todos.build(
           text:     params[:text],
           date:     Date.today,
-          position: current_user.daily_todos.for_today.count
+          position: current_user.daily_todos.for_today.count,
+          company:  current_company
         )
         if todo.save
           render json: {

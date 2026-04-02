@@ -4,7 +4,7 @@ module Api
       before_action :set_goal, only: [:update, :destroy]
 
       def index
-        @goals = current_user.goals
+        @goals = current_company.goals
         @goals = @goals.for_quarter(params[:quarter], params[:year]) if params[:quarter].present?
         @goals = @goals.order(created_at: :desc)
 
@@ -15,7 +15,7 @@ module Api
       end
 
       def create
-        @goal = current_user.goals.build(goal_params)
+        @goal = current_company.goals.build(goal_params.merge(user: current_user))
         if @goal.save
           render json: {
             success: true,
@@ -48,7 +48,7 @@ module Api
       private
 
       def set_goal
-        @goal = current_user.goals.find(params[:id])
+        @goal = current_company.goals.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

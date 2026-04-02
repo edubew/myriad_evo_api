@@ -4,7 +4,7 @@ module Api
       before_action :set_project, only: [:show, :update, :destroy]
 
       def index
-        @projects = current_user.projects
+        @projects = current_company.projects
         
         @projects = @projects.search(params[:q]) if params[:q].present?
         @projects = @projects.where(status: params[:status]) if params[:status].present?
@@ -24,9 +24,9 @@ module Api
       end
 
       def create
-        @project = current_user.projects.build(project_params)
+        @project = current_company.projects.build(project_params.merge(user: current_user))
 
-        # ✅ Auto-assign client if missing
+        # Auto-assign client if missing
         if @project.client_id.nil?
           @project.client = current_user.clients.first
         end
@@ -66,7 +66,7 @@ module Api
       private
 
       def set_project
-        @project = current_user.projects.find(params[:id])
+        @project = current_company.projects.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

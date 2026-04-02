@@ -14,7 +14,10 @@ module Api
       end
 
       def create
-        @task = @project.tasks.build(task_params.except(:assignee_id))
+        @task = @project.tasks.build(task_params.merge(
+          user: current_user,
+          company: current_company
+        ).except(:assignee_id))
         @task.user = current_user
         @task.position = @project.tasks
           .where(status: @task.status).count
@@ -74,7 +77,7 @@ module Api
       private
 
       def set_project
-        @project = current_user.projects.find(params[:project_id])
+        @project = current_company.projects.find(params[:project_id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

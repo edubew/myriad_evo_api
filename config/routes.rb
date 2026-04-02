@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       resources :allocation_setting, only: [:show, :update]
       resources :revenue_entries
       resources :invoices
+      resources :users, only: [:index, :create, :update, :destroy]
     end
   end
 end

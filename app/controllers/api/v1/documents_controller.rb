@@ -5,7 +5,7 @@ module Api
       before_action :set_document, only: [:show, :update, :destroy]
 
       def index
-        @documents = current_user.documents
+        @documents = current_company.documents
         @documents = @documents.search(params[:q])             if params[:q].present?
         @documents = @documents.by_category(params[:category]) if params[:category].present?
         @documents = @documents.where(project_id: params[:project_id]) if params[:project_id].present?
@@ -22,7 +22,7 @@ module Api
       end
 
       def create
-        @document = current_user.documents.build(document_params)
+        @document = current_company.documents.build(document_params.merge(user: current_user))
         if @document.save
           render json: {
             success: true,
@@ -58,7 +58,7 @@ module Api
       private
 
       def set_document
-        @document = current_user.documents.find(params[:id])
+        @document = current_company.documents.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

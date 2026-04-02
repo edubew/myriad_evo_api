@@ -25,16 +25,16 @@ module Api
         today = Date.today
         {
           overdue_projects: overdue_projects_scope.count,
-          active_projects: current_user.projects.active.count,
-          upcoming_deadlines: current_user.projects
+          active_projects: current_company.projects.active.count,
+          upcoming_deadlines: current_company.projects
             .where(end_date: today..(today + 14.days))
             .where(status: 'active')
             .count,
-          active_clients:        current_user.clients.active.count,
-          new_clients_this_month: current_user.clients
+          active_clients:        current_company.clients.active.count,
+          new_clients_this_month: current_company.clients
             .where(created_at: Date.today.beginning_of_month..)
             .count,
-          projects_due_this_week: current_user.projects.active
+          projects_due_this_week: current_company.projects.active
             .where(end_date: today..(today + 7.days))
             .count
         }
@@ -81,7 +81,7 @@ module Api
           }
         end
 
-        current_user.projects
+        current_company.projects
           .joins(:tasks)
           .where(tasks: { due_date: today, status: %w[backlog in_progress review] })
           .select('tasks.id, tasks.title, tasks.priority, tasks.project_id, projects.title as project_title')
@@ -101,7 +101,7 @@ module Api
           end
 
         # Upcoming events today
-        current_user.events
+        current_company.events
           .where('DATE(start_time) = ?', today)
           .where(source: 'manual')
           .limit(2)
@@ -128,7 +128,7 @@ module Api
 
         statuses.each do |status|
           tasks = Task.joins(:project)
-            .where(projects: { user_id: current_user.id })
+            .where(projects: { user_id: current_company.id })
             .where(status: status)
             .where.not(projects: { status: 'cancelled' })
             .includes(:project)
@@ -152,7 +152,7 @@ module Api
         end
 
         counts = Task.joins(:project)
-          .where(projects: { user_id: current_user.id })
+          .where(projects: { user_id: current_company.id })
           .where.not(projects: { status: 'cancelled' })
           .group(:status)
           .count
@@ -161,7 +161,7 @@ module Api
       end
 
       def upcoming_events
-        current_user.events
+        current_company.events
           .where('start_time >= ?', Time.current)
           .where('start_time <= ?', 7.days.from_now)
           .order(start_time: :asc)
@@ -181,7 +181,7 @@ module Api
       end
 
       def active_projects
-        current_user.projects
+        current_company.projects
           .active
           .order(end_date: :asc)
           .limit(5)
@@ -199,11 +199,11 @@ module Api
       end
 
       def pipeline_summary
-        max_value = current_user.deals.active.sum(:value).to_f
+        max_value = current_company.deals.active.sum(:value).to_f
         max_value = 1 if max_value.zero?
 
         Deal::STAGE_LABELS.map { |status, label|
-          stage_deals = current_user.deals.where(status: status)
+          stage_deals = current_company.deals.where(status: status)
           value       = stage_deals.sum(:value).to_f
           {
             status: status,
@@ -224,7 +224,7 @@ module Api
             .where(status: 'closed_won')
             .where(updated_at: month..month_end)
             .sum(:value).to_f
-          pipeline    = current_user.deals
+          pipeline    = current_company.deals
             .active
             .where(created_at: ..month_end)
             .sum(:value).to_f
@@ -239,14 +239,14 @@ module Api
       end
 
       def overdue_projects_scope
-        current_user.projects
+        current_company.projects
           .active
           .where('end_date < ?', Date.today)
       end
 
       def overdue_tasks_scope
         Task.joins(:project)
-          .where(projects: { user_id: current_user.id })
+          .where(projects: { user_id: current_company.id })
           .where('tasks.due_date < ?', Date.today)
           .where.not(tasks: { status: 'completed' })
           .where.not(projects: { status: %w[cancelled completed] })

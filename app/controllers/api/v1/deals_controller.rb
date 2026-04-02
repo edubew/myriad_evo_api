@@ -4,7 +4,7 @@ module Api
       before_action :set_deal, only: [:show, :update, :destroy]
 
       def index
-        @deals = current_user.deals
+        @deals = current_company.deals
         @deals = @deals.where(status: params[:status]) if params[:status].present?
         @deals = @deals.order(:position)
 
@@ -20,7 +20,7 @@ module Api
       end
 
       def create
-        @deal = current_user.deals.build(deal_params)
+        @deal = current_company.deals.build(deal_params.merge(user: current_user))
         @deal.position = current_user.deals
           .where(status: @deal.status).count
 
@@ -66,7 +66,7 @@ module Api
       private
 
       def set_deal
-        @deal = current_user.deals.find(params[:id])
+        @deal = current_company.deals.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: {
           success: false,

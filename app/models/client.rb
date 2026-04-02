@@ -1,5 +1,6 @@
 class Client < ApplicationRecord
   belongs_to :user
+  belongs_to :company
   has_many :contacts, dependent: :destroy
 
   STATUSES = %w[active inactive prospect].freeze

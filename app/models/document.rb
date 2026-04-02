@@ -1,5 +1,6 @@
 class Document < ApplicationRecord
   belongs_to :user
+  belongs_to :company
   belongs_to :project, optional: true
   has_one_attached :file
 

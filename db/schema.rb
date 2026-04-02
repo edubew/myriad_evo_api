@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_01_234630) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -63,6 +63,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_allocation_settings_on_company_id"
     t.index ["user_id"], name: "index_allocation_settings_on_user_id"
   end
 
@@ -78,9 +80,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "internal"
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_clients_on_company_id"
     t.index ["company_name"], name: "index_clients_on_company_name"
     t.index ["status"], name: "index_clients_on_status"
     t.index ["user_id"], name: "index_clients_on_user_id"
+  end
+
+  create_table "companies", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.string "plan", default: "starter"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_companies_on_slug", unique: true
   end
 
   create_table "contacts", force: :cascade do |t|
@@ -93,7 +106,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "client_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
     t.index ["client_id"], name: "index_contacts_on_client_id"
+    t.index ["company_id"], name: "index_contacts_on_company_id"
   end
 
   create_table "daily_todos", force: :cascade do |t|
@@ -104,6 +119,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_daily_todos_on_company_id"
     t.index ["user_id", "date"], name: "index_daily_todos_on_user_id_and_date"
     t.index ["user_id"], name: "index_daily_todos_on_user_id"
   end
@@ -120,7 +137,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "client_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
     t.index ["client_id"], name: "index_deals_on_client_id"
+    t.index ["company_id"], name: "index_deals_on_company_id"
     t.index ["status", "position"], name: "index_deals_on_status_and_position"
     t.index ["status"], name: "index_deals_on_status"
     t.index ["user_id"], name: "index_deals_on_user_id"
@@ -138,7 +157,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "project_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
     t.index ["category"], name: "index_documents_on_category"
+    t.index ["company_id"], name: "index_documents_on_company_id"
     t.index ["project_id"], name: "index_documents_on_project_id"
     t.index ["user_id"], name: "index_documents_on_user_id"
   end
@@ -157,6 +178,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.datetime "updated_at", null: false
     t.string "source", default: "manual"
     t.integer "source_id"
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_events_on_company_id"
     t.index ["event_type"], name: "index_events_on_event_type"
     t.index ["source", "source_id"], name: "index_events_on_source_and_source_id"
     t.index ["start_time"], name: "index_events_on_start_time"
@@ -174,6 +197,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_goals_on_company_id"
     t.index ["user_id"], name: "index_goals_on_user_id"
     t.index ["year", "quarter"], name: "index_goals_on_year_and_quarter"
   end
@@ -194,7 +219,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
     t.index ["client_id"], name: "index_invoices_on_client_id"
+    t.index ["company_id"], name: "index_invoices_on_company_id"
     t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
     t.index ["status"], name: "index_invoices_on_status"
     t.index ["user_id"], name: "index_invoices_on_user_id"
@@ -219,6 +246,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_leads_on_company_id"
     t.index ["source"], name: "index_leads_on_source"
     t.index ["status"], name: "index_leads_on_status"
     t.index ["user_id"], name: "index_leads_on_user_id"
@@ -235,7 +264,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "client_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
     t.index ["client_id"], name: "index_projects_on_client_id"
+    t.index ["company_id"], name: "index_projects_on_company_id"
     t.index ["status"], name: "index_projects_on_status"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -258,6 +289,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "deal_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_revenue_entries_on_company_id"
     t.index ["deal_id"], name: "index_revenue_entries_on_deal_id"
     t.index ["status"], name: "index_revenue_entries_on_status"
     t.index ["user_id", "date"], name: "index_revenue_entries_on_user_id_and_date"
@@ -276,7 +309,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.bigint "assignee_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "company_id"
     t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
+    t.index ["company_id"], name: "index_tasks_on_company_id"
     t.index ["project_id", "position"], name: "index_tasks_on_project_id_and_position"
     t.index ["project_id", "status"], name: "index_tasks_on_project_id_and_status"
     t.index ["project_id"], name: "index_tasks_on_project_id"
@@ -295,6 +330,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "avatar_url"
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_team_members_on_company_id"
     t.index ["user_id"], name: "index_team_members_on_user_id"
   end
 
@@ -316,6 +353,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "avatar_url"
+    t.bigint "company_id"
+    t.index ["company_id"], name: "index_users_on_company_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -323,25 +362,40 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_122956) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "allocation_settings", "companies"
   add_foreign_key "allocation_settings", "users"
+  add_foreign_key "clients", "companies"
   add_foreign_key "clients", "users"
   add_foreign_key "contacts", "clients"
+  add_foreign_key "contacts", "companies"
+  add_foreign_key "daily_todos", "companies"
   add_foreign_key "daily_todos", "users"
   add_foreign_key "deals", "clients"
+  add_foreign_key "deals", "companies"
   add_foreign_key "deals", "users"
+  add_foreign_key "documents", "companies"
   add_foreign_key "documents", "projects"
   add_foreign_key "documents", "users"
+  add_foreign_key "events", "companies"
   add_foreign_key "events", "users"
+  add_foreign_key "goals", "companies"
   add_foreign_key "goals", "users"
   add_foreign_key "invoices", "clients"
+  add_foreign_key "invoices", "companies"
   add_foreign_key "invoices", "users"
+  add_foreign_key "leads", "companies"
   add_foreign_key "leads", "users"
   add_foreign_key "projects", "clients"
+  add_foreign_key "projects", "companies"
   add_foreign_key "projects", "users"
+  add_foreign_key "revenue_entries", "companies"
   add_foreign_key "revenue_entries", "deals"
   add_foreign_key "revenue_entries", "users"
+  add_foreign_key "tasks", "companies"
   add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "users"
   add_foreign_key "tasks", "users", column: "assignee_id"
+  add_foreign_key "team_members", "companies"
   add_foreign_key "team_members", "users"
+  add_foreign_key "users", "companies"
 end
