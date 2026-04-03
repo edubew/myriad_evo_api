@@ -107,16 +107,16 @@ end
       #       }, status: :unprocessable_entity
       #     end
 
-          rescue => e
-            Rails.logger.error "TASK CREATE ERROR: #{e.message}"
-            Rails.logger.error e.backtrace.join("\n")
+        #   rescue => e
+        #     Rails.logger.error "TASK CREATE ERROR: #{e.message}"
+        #     Rails.logger.error e.backtrace.join("\n")
 
-            render json: {
-              success: false,
-              error: "Internal server error"
-            }, status: :internal_server_error
-          end
-        end
+        #     render json: {
+        #       success: false,
+        #       error: "Internal server error"
+        #     }, status: :internal_server_error
+        #   end
+        # end
 
       
         def update
