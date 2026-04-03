@@ -32,6 +32,7 @@ module Api
             Rails.logger.error e.backtrace.join("\n")
 
             render_error(message: 'Internal server error', status: :internal_server_error)
+          end
         end
 
         if @task.save
