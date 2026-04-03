@@ -72,15 +72,6 @@ class Project < ApplicationRecord
     self.client_id ||= default_client_id
   end
 
-  User.find_each do |user|
-    Client.find_or_create_by!(
-      company_name: "Myriad Evo (Internal)",
-      user: user
-    ) do |client|
-      client.status = "active"
-      client.internal = true
-    end
-  end
 
   def default_client_id
     Client.find_by(internal: true, user: user)&.id
