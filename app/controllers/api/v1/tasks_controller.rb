@@ -14,17 +14,24 @@ module Api
       end
 
       def create
-        @task = @project.tasks.build(task_params.merge(
+        @task = @project.tasks.build(
+          task_params.except(:assignee_id).merge(
           user: current_user,
           company: current_company
-        ).except(:assignee_id))
-        @task.user = current_user
+        ))
+        # @task.user = current_user
         @task.position = @project.tasks
           .where(status: @task.status).count
 
         if task_params[:assignee_id].present?
-          assignee = User.find_by(id: task_params[:assignee_id])
-          @task.assignee = assignee if assignee
+          # assignee = User.find_by(id: task_params[:assignee_id])
+          @task.assignee = User.find_by(id: task_params[:assignee_id])
+
+          rescue => e
+            Rails.logger.error "TASK CREATE ERROR: #{e.message}"
+            Rails.logger.error e.backtrace.join("\n")
+
+            render_error(message: 'Internal server error', status: :internal_server_error)
         end
 
         if @task.save
