@@ -13,113 +13,36 @@ module Api
         }
       end
 
-      # def create
-      #   begin
-      #   @task = @project.tasks.build(
-      #     task_params.except(:assignee_id).merge(
-      #     user: current_user,
-      #     company: current_company
-      #   ))
-      #   # @task.user = current_user
-      #   @task.position = @project.tasks
-      #     .where(status: @task.status).count
-
-      #   if task_params[:assignee_id].present?
-      #     # assignee = User.find_by(id: task_params[:assignee_id])
-      #     @task.assignee = User.find_by(id: task_params[:assignee_id])
-
-      #     rescue => e
-      #       Rails.logger.error "TASK CREATE ERROR: #{e.message}"
-      #       Rails.logger.error e.backtrace.join("\n")
-
-      #       render_error(message: 'Internal server error', status: :internal_server_error)
-      #     end
-      #   end
-
-      #   if @task.save
-      #     render json: {
-      #       success: true,
-      #       data: task_payload(@task)
-      #     }, status: :created
-      #   else
-      #     render json: {
-      #       success: false,
-      #       errors: @task.errors.full_messages
-      #     }, status: :unprocessable_content
-      #   end
-      # end
-
       def create
-  @task = @project.tasks.build(
-    task_params.except(:assignee_id).merge(
-      user: current_user
-    )
-  )
+        @task = @project.tasks.build(
+          task_params.except(:assignee_id).merge(
+          user: current_user
+          )
+        )
 
-  @task.position = @project.tasks
-    .where(status: @task.status)
-    .count
+        @task.position = @project.tasks
+        .where(status: @task.status)
+        .count
 
-  if task_params[:assignee_id].present?
-    @task.assignee = User.find_by(id: task_params[:assignee_id])
-  end
+        if task_params[:assignee_id].present?
+          @task.assignee = User.find_by(id: task_params[:assignee_id])
+        end
 
-  if @task.save
-    render json: {
-      success: true,
-      data: task_payload(@task)
-    }, status: :created
-  else
-    Rails.logger.error @task.errors.full_messages
-    render json: {
-      success: false,
-      errors: @task.errors.full_messages
-    }, status: :unprocessable_entity
-  end
-end
-
-      # def create
-      #   begin
-      #     @task = @project.tasks.build(
-      #       task_params.except(:assignee_id).merge(
-      #         user: current_user,
-      #         company: current_company
-      #       )
-      #     )
-
-      #     @task.position = @project.tasks.where(status: @task.status).count
-
-      #     if task_params[:assignee_id].present?
-      #       @task.assignee = User.find_by(id: task_params[:assignee_id])
-      #     end
-
-      #     if @task.save
-      #       render json: {
-      #         success: true,
-      #         data: task_payload(@task)
-      #       }, status: :created
-      #     else
-      #       Rails.logger.error "TASK SAVE FAILED: #{@task.errors.full_messages}"
-
-      #       render json: {
-      #         success: false,
-      #         errors: @task.errors.full_messages
-      #       }, status: :unprocessable_entity
-      #     end
-
-        #   rescue => e
-        #     Rails.logger.error "TASK CREATE ERROR: #{e.message}"
-        #     Rails.logger.error e.backtrace.join("\n")
-
-        #     render json: {
-        #       success: false,
-        #       error: "Internal server error"
-        #     }, status: :internal_server_error
-        #   end
-        # end
-
+        if @task.save
+          render json: {
+            success: true,
+            data: task_payload(@task)
+          }, status: :created
+        else
+          Rails.logger.error @task.errors.full_messages
+          render json: {
+            success: false,
+            errors: @task.errors.full_messages
+          }, status: :unprocessable_entity
+        end
+      end
       
-        def update
+      def update
         @task = @project.tasks.find(params[:id])
         if @task.update(task_params)
           render json: {

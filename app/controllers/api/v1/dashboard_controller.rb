@@ -128,7 +128,7 @@ module Api
 
         statuses.each do |status|
           tasks = Task.joins(:project)
-            .where(projects: { user_id: current_company.id })
+            .where(projects: { company_id: current_company.id })
             .where(status: status)
             .where.not(projects: { status: 'cancelled' })
             .includes(:project)
@@ -152,7 +152,7 @@ module Api
         end
 
         counts = Task.joins(:project)
-          .where(projects: { user_id: current_company.id })
+          .where(projects: { company_id: current_company.id })
           .where.not(projects: { status: 'cancelled' })
           .group(:status)
           .count
@@ -246,7 +246,7 @@ module Api
 
       def overdue_tasks_scope
         Task.joins(:project)
-          .where(projects: { user_id: current_company.id })
+          .where(projects: { company_id: current_company.id })
           .where('tasks.due_date < ?', Date.today)
           .where.not(tasks: { status: 'completed' })
           .where.not(projects: { status: %w[cancelled completed] })
