@@ -76,6 +76,7 @@ test:
 production:
   <<: *default
   url: <%= ENV["DATABASE_URL"] %>
+  pool: 5
   prepared_statements: false
   advisory_locks: false
   # database: myriad_evo_api_production
