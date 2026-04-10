@@ -27,9 +27,8 @@ class Api::V1::BaseController < ActionController::API
       end
 
       rescue => e
-        Rails.logger.error "JWT ERROR: #{e.message}"
-        render json: { success: false, error: "Unauthorized "}, status: :unauthorized and return
-      end
+      Rails.logger.error "JWT ERROR: #{e.message}"
+      render json: { success: false, error: "Unauthorized "}, status: :unauthorized and return
     end
   end
 

@@ -1,7 +1,7 @@
-class Api::V1::SessionsController < Devise::SessionsController
+class Api::V1::SessionsController < Api::V1::BaseController
   respond_to :json
-  skip_before_action :authenticate_user_from_token!, only: [:create]
-  skip_before_action :ensure_company, only: [:create]
+  skip_before_action :authenticate_user_from_token!, only: [:create], raise: false
+  skip_before_action :ensure_company, only: [:create], raise: false
 
   def create
     user = User.find_by(email: params.dig(:user, :email))
@@ -27,17 +27,19 @@ class Api::V1::SessionsController < Devise::SessionsController
     render json: { success: true, message: "Logged out successfully" }, status: :ok
   end
 
+ private
+
   def user_payload(user)
-  {
-    id: user.id,
-    email: user.email,
-    first_name: user.first_name,
-    last_name: user.last_name,
-    role:  user.role,
-    full_name: user.full_name,
-    avatar: user.avatar,
-    company_id: user.company_id,
-    company_name: user.company&.name
-  }
-end
+    {
+      id: user.id,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      role:  user.role,
+      full_name: user.full_name,
+      avatar: user.avatar,
+      company_id: user.company_id,
+      company_name: user.company&.name
+    }
+  end
 end
