@@ -37,8 +37,7 @@ class Api::V1::BaseController < ActionController::API
   end
 
   def current_company
-    return nil unless current_user
-    current_user.company
+    @current_company ||= current_user&.company
   end
 
   def ensure_company

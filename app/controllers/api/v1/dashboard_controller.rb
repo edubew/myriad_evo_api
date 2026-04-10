@@ -3,6 +3,13 @@ module Api
     class DashboardController < BaseController
 
       def index
+        # Preload shared data once
+        @projects = current_company.projects
+        @tasks = Task.joins(:project).where(projects: { company_id: current_company.id })
+        @deals = current_company.deals
+        @clients = current_company.clients
+        @events = current_company.events
+
         render json: {
           success: true,
           data: {
@@ -23,18 +30,21 @@ module Api
       # Metrics
       def metrics
         today = Date.today
+
+        projects = @projects
+        clients = @clients
+
         {
           overdue_projects: overdue_projects_scope.count,
-          active_projects: current_company.projects.active.count,
-          upcoming_deadlines: current_company.projects
-            .where(end_date: today..(today + 14.days))
-            .where(status: 'active')
+          active_projects: projects.active.count,
+          upcoming_deadlines: projects
+            .where(end_date: today..(today + 14.days), status: "active")
             .count,
-          active_clients:        current_company.clients.active.count,
-          new_clients_this_month: current_company.clients
+          active_clients: clients.active.count,
+          new_clients_this_month: clients
             .where(created_at: Date.today.beginning_of_month..)
             .count,
-          projects_due_this_week: current_company.projects.active
+          projects_due_this_week: projects.active
             .where(end_date: today..(today + 7.days))
             .count
         }
@@ -127,8 +137,7 @@ module Api
         result   = {}
 
         statuses.each do |status|
-          tasks = Task.joins(:project)
-            .where(projects: { company_id: current_company.id })
+          tasks = @tasks
             .where(status: status)
             .where.not(projects: { status: 'cancelled' })
             .includes(:project)
@@ -161,7 +170,7 @@ module Api
       end
 
       def upcoming_events
-        current_company.events
+        @events
           .where('start_time >= ?', Time.current)
           .where('start_time <= ?', 7.days.from_now)
           .order(start_time: :asc)
@@ -181,7 +190,7 @@ module Api
       end
 
       def active_projects
-        current_company.projects
+        @projects
           .active
           .includes(:tasks)
           .order(end_date: :asc)
@@ -200,7 +209,7 @@ module Api
       end
 
       def pipeline_summary
-        max_value = current_company.deals.active.sum(:value).to_f
+        max_value = @deals.active.sum(:value).to_f
         max_value = 1 if max_value.zero?
 
         Deal::STAGE_LABELS.map { |status, label|
@@ -240,14 +249,13 @@ module Api
       end
 
       def overdue_projects_scope
-        current_company.projects
+        @projects
           .active
           .where('end_date < ?', Date.today)
       end
 
       def overdue_tasks_scope
-        Task.joins(:project)
-          .where(projects: { company_id: current_company.id })
+        @tasks
           .where('tasks.due_date < ?', Date.today)
           .where.not(tasks: { status: 'completed' })
           .where.not(projects: { status: %w[cancelled completed] })
