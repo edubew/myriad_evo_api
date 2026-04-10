@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_10_105949) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_10_145814) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -269,6 +269,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_10_105949) do
     t.index ["client_id"], name: "index_projects_on_client_id"
     t.index ["company_id", "status"], name: "index_projects_on_company_id_and_status"
     t.index ["company_id"], name: "index_projects_on_company_id"
+    t.index ["end_date"], name: "index_projects_on_end_date"
     t.index ["status"], name: "index_projects_on_status"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -314,9 +315,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_10_105949) do
     t.bigint "company_id"
     t.index ["assignee_id"], name: "index_tasks_on_assignee_id"
     t.index ["company_id"], name: "index_tasks_on_company_id"
+    t.index ["due_date"], name: "index_tasks_on_due_date"
     t.index ["project_id", "position"], name: "index_tasks_on_project_id_and_position"
     t.index ["project_id", "status"], name: "index_tasks_on_project_id_and_status"
     t.index ["project_id"], name: "index_tasks_on_project_id"
+    t.index ["status"], name: "index_tasks_on_status"
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 

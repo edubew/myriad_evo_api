@@ -10,7 +10,8 @@ module Api
         @clients = current_company.clients
         @events = current_company.events
 
-        render json: {
+        render json: Rails.cache.fetch("dashboard/#{current_user.id}", expires_in: 5.minutes) do
+         {
           success: true,
           data: {
             metrics: metrics,
