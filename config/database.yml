@@ -79,6 +79,3 @@ production:
   pool: 5
   prepared_statements: false
   advisory_locks: false
-  # database: myriad_evo_api_production
-  # username: <%= ENV["DB_USERNAME"] %>
-  # password: <%= ENV["DB_PASSWORD"] %>
