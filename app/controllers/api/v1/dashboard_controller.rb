@@ -16,10 +16,6 @@ module Api
             revenue_chart: revenue_chart
           }
         }
-        Rails.logger.info "CURRENT USER: #{current_user.inspect}"
-        Rails.logger.info "COMPANY: #{current_user&.company.inspect}"
-
-        render_success(data: { message: "Dashboard working" })
       end
 
       private
@@ -187,7 +183,7 @@ module Api
       def active_projects
         current_company.projects
           .active
-          .includes(:task)
+          .includes(:tasks)
           .order(end_date: :asc)
           .limit(5)
           .map { |p|
