@@ -10,7 +10,7 @@ module Api
         @clients = current_company.clients
         @events = current_company.events
 
-        data = Rails.cache.fetch("dashboard/#{current_user.id}", expires_in: 5.minutes) do
+        data = Rails.cache.fetch("dashboard/#{current_user.id}/#{current_company.updated_at.to_i}", expires_in: 5.minutes) do
           {
             metrics: metrics,
             alert: alert_banner,
