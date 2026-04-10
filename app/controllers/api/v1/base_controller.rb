@@ -4,6 +4,12 @@ class Api::V1::BaseController < ActionController::API
   before_action :authenticate_user_from_token!
   before_action :ensure_company
 
+  before_action :force_json_format
+
+  def force_json_format
+    request.format = :json
+  end
+
   private
 
   # Custom method to authenticate via JWT from body or headers

@@ -10,21 +10,20 @@ module Api
         @clients = current_company.clients
         @events = current_company.events
 
-        render json: Rails.cache.fetch("dashboard/#{current_user.id}", expires_in: 5.minutes) do
+        data = Rails.cache.fetch("dashboard/#{current_user.id}", expires_in: 5.minutes) do
           {
-            success: true,
-            data: {
-              metrics: metrics,
-              alert: alert_banner,
-              todays_focus: todays_focus,
-              kanban_overview: kanban_overview,
-              upcoming_events: upcoming_events,
-              active_projects: active_projects,
-              pipeline_summary: pipeline_summary,
-              revenue_chart: revenue_chart
-            }
+            metrics: metrics,
+            alert: alert_banner,
+            todays_focus: todays_focus,
+            kanban_overview: kanban_overview,
+            upcoming_events: upcoming_events,
+            active_projects: active_projects,
+            pipeline_summary: pipeline_summary,
+            revenue_chart: revenue_chart
           }
         end
+
+        render json: { success: true, data: data}
       end
 
       private
@@ -93,7 +92,7 @@ module Api
           }
         end
 
-        current_company.projects
+        @projects
           .joins(:tasks)
           .where(tasks: { due_date: today, status: %w[backlog in_progress review] })
           .select('tasks.id, tasks.title, tasks.priority, tasks.project_id, projects.title as project_title')
@@ -113,7 +112,7 @@ module Api
           end
 
         # Upcoming events today
-        current_company.events
+        @events
           .where('DATE(start_time) = ?', today)
           .where(source: 'manual')
           .limit(2)
