@@ -11,19 +11,20 @@ module Api
         @events = current_company.events
 
         render json: Rails.cache.fetch("dashboard/#{current_user.id}", expires_in: 5.minutes) do
-         {
-          success: true,
-          data: {
-            metrics: metrics,
-            alert: alert_banner,
-            todays_focus: todays_focus,
-            kanban_overview: kanban_overview,
-            upcoming_events: upcoming_events,
-            active_projects: active_projects,
-            pipeline_summary: pipeline_summary,
-            revenue_chart: revenue_chart
+          {
+            success: true,
+            data: {
+              metrics: metrics,
+              alert: alert_banner,
+              todays_focus: todays_focus,
+              kanban_overview: kanban_overview,
+              upcoming_events: upcoming_events,
+              active_projects: active_projects,
+              pipeline_summary: pipeline_summary,
+              revenue_chart: revenue_chart
+            }
           }
-        }
+        end
       end
 
       private
