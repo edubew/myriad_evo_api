@@ -6,25 +6,46 @@ class Api::V1::SessionsController < Api::V1::BaseController
   def create
     user = User.find_by(email: params.dig(:user, :email))
 
-      if user&.valid_password?(params.dig(:user, :password))
-        token, _payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
-        
-        render json: {
-        success: true,
-        message: "Logged in successfully",
-        token: token,
-        user: user_payload(user)
-      }
-      else
-        render json: {
-          success: false,
-          errors: ["Invalid email or password"]
-        }, status: :unauthorized
-      end
+    if user&.valid_password?(params.dig(:user, :password))
+      token, _payload = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil)
+      
+      render json: {
+      success: true,
+      message: "Logged in successfully",
+      token: token,
+      user: user_payload(user)
+    }
+    else
+      render json: {
+        success: false,
+        errors: ["Invalid email or password"]
+      }, status: :unauthorized
     end
+  end
 
   def destroy
     render json: { success: true, message: "Logged out successfully" }, status: :ok
+  end
+
+  def demo_login
+    user = User.find_by(email: "demo@coredesk.com")
+
+    unless user
+      return render json: {
+        success: false,
+        error: "Demo account not configured"
+      }, status: :not_found
+    end
+
+    token, _payload = Warden::UserEncoder.new.call(user, :user, nil)
+    DemoWorkspaceResetJob.set(wait: 2.minutes).perform_later(user.id)
+
+    render json: {
+      success: true,
+      message: "Demo login successful",
+      token: token,
+      user: user_payload(user)
+    }
   end
 
  private
