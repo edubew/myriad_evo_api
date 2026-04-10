@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_01_234630) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_10_105949) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -139,6 +139,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_234630) do
     t.datetime "updated_at", null: false
     t.bigint "company_id"
     t.index ["client_id"], name: "index_deals_on_client_id"
+    t.index ["company_id", "status"], name: "index_deals_on_company_id_and_status"
     t.index ["company_id"], name: "index_deals_on_company_id"
     t.index ["status", "position"], name: "index_deals_on_status_and_position"
     t.index ["status"], name: "index_deals_on_status"
@@ -266,6 +267,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_01_234630) do
     t.datetime "updated_at", null: false
     t.bigint "company_id"
     t.index ["client_id"], name: "index_projects_on_client_id"
+    t.index ["company_id", "status"], name: "index_projects_on_company_id_and_status"
     t.index ["company_id"], name: "index_projects_on_company_id"
     t.index ["status"], name: "index_projects_on_status"
     t.index ["user_id"], name: "index_projects_on_user_id"

@@ -183,6 +183,7 @@ module Api
       def active_projects
         current_company.projects
           .active
+          .includes(:task)
           .order(end_date: :asc)
           .limit(5)
           .map { |p|
