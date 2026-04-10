@@ -22,6 +22,7 @@ class Api::V1::BaseController < ActionController::API
       unless @current_user
         render json: { error: "Invalid user" }, status: :unauthorized and return
       end
+    end
   end
 
   def current_user
