@@ -1,7 +1,7 @@
 class Api::V1::BaseController < ActionController::API
   include Devise::Controllers::Helpers
 
-  before_action :authenticate_user_from_token!
+  before_action :authenticate_user_from_token!, unless: :auth_exempt_controller?
   before_action :ensure_company
 
   before_action :force_json_format
@@ -11,6 +11,12 @@ class Api::V1::BaseController < ActionController::API
   end
 
   private
+
+  def auth_exempt_controller?
+    return true if controller_name == "sessions"
+    return true if action_name == "demo_login"
+    false
+  end
 
   # Custom method to authenticate via JWT from body or headers
   def authenticate_user_from_token!
