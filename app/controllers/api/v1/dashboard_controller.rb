@@ -16,6 +16,10 @@ module Api
             revenue_chart: revenue_chart
           }
         }
+        Rails.logger.info "CURRENT USER: #{current_user.inspect}"
+        Rails.logger.info "COMPANY: #{current_user&.company.inspect}"
+
+        render_success(data: { message: "Dashboard working" })
       end
 
       private

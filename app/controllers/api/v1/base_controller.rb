@@ -18,9 +18,17 @@ class Api::V1::BaseController < ActionController::API
     
     begin
       decoded = Warden::JWTAuth::TokenDecoder.new.call(token)
-      @current_user = User.find_by(id: user_id)
+
+      user_id = decoded['sub']
+      @current_user = User.includes(:company).find_by(id: user_id)
+
       unless @current_user
         render json: { error: "Invalid user" }, status: :unauthorized and return
+      end
+
+      rescue => e
+        Rails.logger.error "JWT ERROR: #{e.message}"
+        render json: { success: false, error: "Unauthorized "}, status: :unauthorized and return
       end
     end
   end
