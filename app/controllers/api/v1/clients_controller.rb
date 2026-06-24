@@ -4,115 +4,63 @@ module Api
       before_action :set_client, only: [:show, :update, :destroy]
 
       def index
-        @clients = current_company.clients
+        # policy_scope automatically restricts to current_company
+        clients = policy_scope(Client)
+          .includes(:contacts)
+          .then { |s| params[:q].present?      ? s.search(params[:q])           : s }
+          .then { |s| params[:status].present? ? s.where(status: params[:status]) : s }
+          .order(created_at: :desc)
+          .page(params[:page]).per(params[:per_page] || 25)
 
-        @clients = @clients.search(params[:q])    if params[:q].present?
-        @clients = @clients.where(status: params[:status]) if params[:status].present?
-        @clients = @clients.order(created_at: :desc)
-
-        render json: {
-          success: true,
-          data: @clients.map { |c| client_payload(c) }
-        }
+        render_success(
+          data: clients.map { |c| ClientBlueprint.render_as_hash(c) },
+          meta: pagination_meta(clients)
+        )
       end
 
       def show
-        render json: {
-          success: true,
-          data: client_detail_payload(@client)
-        }
+        authorize @client
+        render_success(data: ClientBlueprint.render_as_hash(@client, view: :detail))
       end
 
       def create
-        @client = current_company.clients.build(client_params.merge(user: current_user))
-        if @client.save
-          render json: {
-            success: true,
-            data: client_payload(@client)
-          }, status: :created
+        client = current_company.clients.build(client_params.merge(user: current_user))
+        authorize client
+
+        if client.save
+          render_success(data: ClientBlueprint.render_as_hash(client), status: :created)
         else
-          render json: {
-            success: false,
-            errors: @client.errors.full_messages
-          }, status: :unprocessable_content
+          render_error(message: 'Validation failed', errors: client.errors.full_messages)
         end
       end
 
       def update
+        authorize @client
         if @client.update(client_params)
-          render json: {
-            success: true,
-            data: client_payload(@client)
-          }
+          render_success(data: ClientBlueprint.render_as_hash(@client))
         else
-          render json: {
-            success: false,
-            errors: @client.errors.full_messages
-          }, status: :unprocessable_content
+          render_error(message: 'Validation failed', errors: @client.errors.full_messages)
         end
       end
 
       def destroy
+        authorize @client
         @client.destroy
-        render json: { success: true, message: 'Client deleted' }
+        render_success(data: { id: @client.id })
       end
 
       private
 
       def set_client
-        @client = current_company.clients.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        render json: {
-          success: false,
-          error: 'Client not found'
-        }, status: :not_found
+        # Never use Client.find — always scope to company first
+        @client = policy_scope(Client).find(params[:id])
       end
 
       def client_params
         params.require(:client).permit(
-          :company_name,
-          :industry,
-          :website,
-          :email,
-          :phone,
-          :status,
-          :notes
+          :company_name, :industry, :website,
+          :email, :phone, :status, :notes
         )
-      end
-
-      def client_payload(client)
-        {
-          id:              client.id,
-          company_name:    client.company_name,
-          industry:        client.industry,
-          website:         client.website,
-          email:           client.email,
-          phone:           client.phone,
-          status:          client.status,
-          initials:        client.initials,
-          contact_count:   client.contacts.count,
-          primary_contact: contact_payload(client.primary_contact),
-          created_at:      client.created_at
-        }
-      end
-
-      def client_detail_payload(client)
-        client_payload(client).merge(
-          notes:    client.notes,
-          contacts: client.contacts.map { |c| contact_payload(c) }
-        )
-      end
-
-      def contact_payload(contact)
-        return nil unless contact
-        {
-          id:         contact.id,
-          full_name:  contact.full_name,
-          email:      contact.email,
-          phone:      contact.phone,
-          role:       contact.role,
-          is_primary: contact.is_primary
-        }
       end
     end
   end

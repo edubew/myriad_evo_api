@@ -1,74 +1,69 @@
 class Api::V1::BaseController < ActionController::API
   include Devise::Controllers::Helpers
+  include Pundit::Authorization
 
-  before_action :authenticate_user_from_token!, unless: :auth_exempt_controller?
-  before_action :ensure_company
+  before_action :authenticate_user_from_token!
+  before_action :ensure_company!
+  after_action  :verify_authorized,      except: :index
+  after_action  :verify_policy_scoped,   only:   :index
 
-  before_action :force_json_format
-
-  def force_json_format
-    request.format = :json
-  end
+  rescue_from Pundit::NotAuthorizedError, with: :render_forbidden
+  rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
 
   private
 
-  def auth_exempt_controller?
-    return true if controller_name == "sessions"
-    return true if action_name == "demo_login"
-    false
-  end
-
-  # Custom method to authenticate via JWT from body or headers
   def authenticate_user_from_token!
     auth_header = request.headers['Authorization']
-
-    if auth_header.blank?
-      render json: { error: 'Missing token' }, status: :unauthorized and return
-    end
+    return render_unauthorized('Missing token') if auth_header.blank?
 
     token = auth_header.split(' ').last
-    
-    begin
-      decoded = Warden::JWTAuth::TokenDecoder.new.call(token)
+    decoded = Warden::JWTAuth::TokenDecoder.new.call(token)
+    jti     = decoded['jti']
 
-      user_id = decoded['sub']
-      @current_user = User.includes(:company).find_by(id: user_id)
+    # Check denylist manually (belt-and-suspenders)
+    if JwtDenylist.exists?(jti: jti)
+      return render_unauthorized('Token has been revoked')
+    end
 
-      unless @current_user
-        render json: { error: "Invalid user" }, status: :unauthorized and return
-      end
+    @current_user = User.includes(:company).find_by(id: decoded['sub'])
+    render_unauthorized('Invalid token') unless @current_user
 
-      rescue => e
-      Rails.logger.error "JWT ERROR: #{e.message}"
-      render json: { success: false, error: "Unauthorized "}, status: :unauthorized and return
+  rescue => e
+    Rails.logger.error "JWT auth error: #{e.message}"
+    render_unauthorized('Unauthorized')
+  end
+
+  def ensure_company!
+    unless current_user&.company
+      render json: { success: false, error: 'No company associated with this account' },
+             status: :forbidden
     end
   end
 
-  def current_user
-    @current_user
+  def current_user    = @current_user
+  def current_company = @current_company ||= current_user&.company
+
+  # Pundit user context
+  def pundit_user = current_user
+
+  def render_forbidden(e)
+    render json: { success: false, error: 'You are not authorized to perform this action',
+                   reason: e.message }, status: :forbidden
   end
 
-  def current_company
-    @current_company ||= current_user&.company
+  def render_unauthorized(msg = 'Unauthorized')
+    render json: { success: false, error: msg }, status: :unauthorized
   end
 
-  def ensure_company
-    unless current_company
-      render json: {
-        success: false,
-        error: 'No company associated with this account'
-      }, status: :forbidden
-    end
+  def render_not_found(e)
+    render json: { success: false, error: 'Record not found' }, status: :not_found
   end
 
-  def render_success(data:, status: :ok)
-    render json: { success: true, data: data }, status: status
+  def render_success(data:, status: :ok, **meta)
+    render json: { success: true, data: data, **meta }, status: status
   end
 
-  def render_error(message:, status: :unprocessable_entity)
-    render json: {
-      success: false,
-      error: message
-    }, status: status
+  def render_error(message:, status: :unprocessable_entity, errors: [])
+    render json: { success: false, error: message, errors: errors }, status: status
   end
 end
