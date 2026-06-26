@@ -4,74 +4,123 @@ module Api
       before_action :set_deal, only: [:show, :update, :destroy]
 
       def index
-        @deals = current_company.deals
+        @deals = policy_scope(Deal)
         @deals = @deals.where(status: params[:status]) if params[:status].present?
         @deals = @deals.order(:position)
 
         render json: {
           success: true,
-          data: @deals.map { |d| deal_payload(d) },
+          data:    @deals.map { |d| deal_payload(d) },
           summary: pipeline_summary
         }
       end
 
       def show
+        authorize @deal
         render json: { success: true, data: deal_payload(@deal) }
       end
 
       def create
         @deal = current_company.deals.build(deal_params.merge(user: current_user))
-        @deal.position = current_user.deals
-          .where(status: @deal.status).count
+
+        @deal.position = current_company.deals
+                           .where(status: @deal.status).count
+
+        if @deal.client_id.present?
+          unless current_company.clients.exists?(id: @deal.client_id)
+            return render json: {
+              success: false,
+              errors:  ['Client not found in your organization']
+            }, status: :unprocessable_content
+          end
+        end
+
+        authorize @deal
 
         if @deal.save
           render json: {
             success: true,
-            data: deal_payload(@deal)
+            data:    deal_payload(@deal)
           }, status: :created
         else
           render json: {
             success: false,
-            errors: @deal.errors.full_messages
+            errors:  @deal.errors.full_messages
           }, status: :unprocessable_content
         end
       end
 
       def update
+        authorize @deal
+
+        if deal_params[:client_id].present?
+          unless current_company.clients.exists?(id: deal_params[:client_id])
+            return render json: {
+              success: false,
+              errors:  ['Client not found in your organization']
+            }, status: :unprocessable_content
+          end
+        end
+
         if @deal.update(deal_params)
           render json: { success: true, data: deal_payload(@deal) }
         else
           render json: {
             success: false,
-            errors: @deal.errors.full_messages
+            errors:  @deal.errors.full_messages
           }, status: :unprocessable_content
         end
       end
 
       def destroy
+        authorize @deal
         @deal.destroy
         render json: { success: true, message: 'Deal deleted' }
       end
 
       def reorder
+        authorize Deal, :reorder?
+
         deals_data = params[:deals]
-        deals_data.each_with_index do |deal_data, index|
-          current_user.deals
-            .find(deal_data[:id])
-            .update(status: deal_data[:status], position: index)
+
+        unless deals_data.is_a?(Array)
+          return render json: {
+            success: false,
+            error:   'Expected an array of deals'
+          }, status: :unprocessable_content
         end
+
+        ActiveRecord::Base.transaction do
+          deals_data.each_with_index do |deal_data, index|
+            current_company.deals
+              .find(deal_data[:id])
+              .update!(
+                status:   deal_data[:status],
+                position: index
+              )
+          end
+        end
+
         render json: { success: true }
+
+      rescue ActiveRecord::RecordNotFound
+        render json: {
+          success: false,
+          error:   'One or more deals not found or do not belong to your organization'
+        }, status: :not_found
+      rescue ActiveRecord::RecordInvalid => e
+        render json: {
+          success: false,
+          errors:  e.record.errors.full_messages
+        }, status: :unprocessable_content
       end
 
       private
 
       def set_deal
-        @deal = current_company.deals.find(params[:id])
+        @deal = policy_scope(Deal).find(params[:id])
       rescue ActiveRecord::RecordNotFound
-        render json: {
-          success: false,
-          error: 'Deal not found'
-        }, status: :not_found
+        render json: { success: false, error: 'Deal not found' }, status: :not_found
       end
 
       def deal_params
@@ -100,12 +149,12 @@ module Api
       end
 
       def pipeline_summary
-        deals = current_user.deals
+        deals = current_company.deals
         {
-          total_value:    deals.active.sum(:value),
-          weighted_value: deals.active.sum('value * probability / 100'),
+          total_value:    deals.active.sum(:value).to_f,
+          weighted_value: deals.active.sum('value * probability / 100').to_f,
           deal_count:     deals.active.count,
-          won_value:      deals.where(status: 'closed_won').sum(:value)
+          won_value:      deals.where(status: 'closed_won').sum(:value).to_f
         }
       end
     end
