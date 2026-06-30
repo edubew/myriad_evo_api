@@ -6,7 +6,8 @@ class Invoice < ApplicationRecord
   STATUSES = %w[draft sent paid overdue cancelled].freeze
 
   validates :title, presence: true
-  validates :invoice_number, presence: true, uniqueness: true
+  validates :invoice_number, presence: true,
+            uniqueness: { scope: :company_id, message: 'already exists for this company' }
   validates :amount, numericality: { greater_than: 0 }
   validates :status, inclusion: { in: STATUSES }
 
@@ -24,30 +25,25 @@ class Invoice < ApplicationRecord
     status == 'sent' && due_date.present? && due_date < Date.today
   end
 
-  def overdue?
-    status == 'sent' && due_date.present? && due_date < Date.today
+  def days_until_due
+    return nil unless due_date
+    (due_date - Date.today).to_i
   end
-
-      def days_until_due
-        return nil unless due_date
-        (due_date - Date.today).to_i
-      end
-
-      def overdue?
-        return false unless due_date
-        return false if status == 'paid'
-
-        due_date < Date.today
-      end
 
   private
 
   def generate_invoice_number
-    year  = Date.today.year
-    count = Invoice.where(
-      'invoice_number LIKE ?', "INV-#{year}-%"
-    ).count + 1
-    self.invoice_number = "INV-#{year}-#{count.to_s.rjust(3, '0')}"
+    year = Date.today.year
+
+    ActiveRecord::Base.connection.execute(
+      "SELECT pg_advisory_xact_lock(#{company_id.to_i})"
+    )
+
+    count = company.invoices
+              .where('invoice_number LIKE ?', "INV-#{year}-#{company_id}-%")
+              .count + 1
+
+    self.invoice_number = "INV-#{year}-#{company_id}-#{count.to_s.rjust(4, '0')}"
   end
 
   def calculate_tax_and_total

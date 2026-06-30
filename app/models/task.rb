@@ -14,7 +14,7 @@ class Task < ApplicationRecord
   }.freeze
 
   validates :title,    presence: true
-  validate :assignee_must_exist
+  validate  :assignee_must_belong_to_company
   validates :status,   inclusion: { in: STATUSES }
   validates :priority, inclusion: { in: PRIORITIES }
 
@@ -24,8 +24,16 @@ class Task < ApplicationRecord
     PRIORITY_COLORS[priority]
   end
 
-  def assignee_must_exist
+  private
+
+  def assignee_must_belong_to_company
     return if assignee_id.blank?
-    errors.add(:assignee, "must exist") unless User.exists?(assignee_id)
+
+    task_company_id = company_id || project&.company_id
+    return if task_company_id.nil?
+
+    unless User.exists?(id: assignee_id, company_id: task_company_id)
+      errors.add(:assignee, 'must be a member of your organization')
+    end
   end
 end
