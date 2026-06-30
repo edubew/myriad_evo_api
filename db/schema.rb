@@ -10,23 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_10_145814) do
-  create_schema "auth"
-  create_schema "extensions"
-  create_schema "graphql"
-  create_schema "graphql_public"
-  create_schema "pgbouncer"
-  create_schema "realtime"
-  create_schema "storage"
-  create_schema "vault"
-
+ActiveRecord::Schema[7.1].define(version: 2026_06_30_081751) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "pg_graphql"
-  enable_extension "pg_stat_statements"
-  enable_extension "pgcrypto"
   enable_extension "plpgsql"
-  enable_extension "supabase_vault"
-  enable_extension "uuid-ossp"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -94,6 +80,21 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_10_145814) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_companies_on_slug", unique: true
+  end
+
+  create_table "company_memberships", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "company_id", null: false
+    t.string "role", default: "member", null: false
+    t.datetime "invited_at"
+    t.datetime "accepted_at"
+    t.bigint "invited_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_company_memberships_on_company_id"
+    t.index ["role"], name: "index_company_memberships_on_role"
+    t.index ["user_id", "company_id"], name: "index_company_memberships_on_user_and_company", unique: true
+    t.index ["user_id"], name: "index_company_memberships_on_user_id"
   end
 
   create_table "contacts", force: :cascade do |t|
@@ -222,8 +223,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_10_145814) do
     t.datetime "updated_at", null: false
     t.bigint "company_id"
     t.index ["client_id"], name: "index_invoices_on_client_id"
+    t.index ["company_id", "invoice_number"], name: "index_invoices_on_company_and_number", unique: true
     t.index ["company_id"], name: "index_invoices_on_company_id"
-    t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
     t.index ["status"], name: "index_invoices_on_status"
     t.index ["user_id"], name: "index_invoices_on_user_id"
   end
@@ -371,6 +372,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_10_145814) do
   add_foreign_key "allocation_settings", "users"
   add_foreign_key "clients", "companies"
   add_foreign_key "clients", "users"
+  add_foreign_key "company_memberships", "companies"
+  add_foreign_key "company_memberships", "users"
   add_foreign_key "contacts", "clients"
   add_foreign_key "contacts", "companies"
   add_foreign_key "daily_todos", "companies"
