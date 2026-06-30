@@ -1,0 +1,4 @@
+:cron:
+    jwt_cleanup:
+      cron: "0 3 * * *"
+      class: JwtDenylistCleanupJob
